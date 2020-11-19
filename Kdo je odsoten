@@ -13,10 +13,10 @@ def odsotni():
         Do = form.do.data #danes
         priimek = form.priimek.data #request.form['priimek']
         podatki = routes.zaposleni_po_priimku(priimek)
-        A = []
+        A = [['Id','Ime','Priimek','KISID','Vrsta','Od','Do','Dni']]
         for d in podatki:
             kisid_za = d[0]
-            izbrano = za_mesecno_iz_odsotnosti(kisid_za,Od,Do)
+            izbrano = sedanje_odsotnosti(kisid_za,Od,Do)
             if izbrano != '0':
                 for i in izbrano: #_zaposlen:
                     zaposlen_podatki = routes._zaposlen_je_kisid(i[1])
