@@ -1,0 +1,33 @@
+@pbp.route("/odsotni",methods=['GET','POST'])
+def odsotni():
+    uporabnik = session.get("user")
+    di = uporabnik.get("upn")
+    if di != 'fgpa@um.si' and di != 'kadrovska.fgpa@um.si' and di != 'referat.fgpa@um.si'and di != 'tajnik.fgpa@um.si':
+        return redirect(url_for("auth.index")) #None #render_template('fgpa.html',di=di)
+    form = forms.Fgpa()
+    if form.validate_on_submit():
+
+        danes = datetime.date.today()
+        danes = danes.strftime("%Y-%m-%d")
+        Od = form.od.data #request.form['Od']
+        Do = form.do.data #danes
+        priimek = form.priimek.data #request.form['priimek']
+        podatki = routes.zaposleni_po_priimku(priimek)
+        A = []
+        for d in podatki:
+            kisid_za = d[0]
+            izbrano = za_mesecno_iz_odsotnosti(kisid_za,Od,Do)
+            if izbrano != '0':
+                for i in izbrano: #_zaposlen:
+                    zaposlen_podatki = routes._zaposlen_je_kisid(i[1])
+                    ime = zaposlen_podatki[1]
+                    priimek = zaposlen_podatki[2]
+                    i=list(i)
+                    i.insert(1,ime)
+                    i.insert(2,priimek)
+                    i[5] = i[5].strftime('%d.%m.%Y')
+                    i[6] = i[6].strftime('%d.%m.%Y')
+                    A.append(i)
+            #print("Odsotnosti ",A)
+        return render_template("prikazi.html", Od=Od.strftime('%d.%m.%Y'),Do=Do.strftime('%d.%m.%Y'),di=di, stanje = A)
+    return render_template("fgpa.html",di=di,form=form)
